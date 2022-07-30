@@ -1,16 +1,13 @@
 package com.example.security.config.auth;
 
-import com.example.security.domain.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
-@Configuration
 public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
@@ -22,8 +19,7 @@ public class SecurityConfig {
                 .headers().frameOptions().disable()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/", "/css/**", "/images/**", "/js/**", "/h2-console/**").permitAll()
-                .antMatchers("/api/**").hasRole(Role.USER.name())
+                .antMatchers("/hello/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .logout()

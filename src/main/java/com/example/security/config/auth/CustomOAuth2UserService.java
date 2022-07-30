@@ -20,7 +20,7 @@ import java.util.Collections;
 
 @RequiredArgsConstructor
 @Service
-public class CustomOAuth2UserService implements OAuth2UserService {
+public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final UserRepository userRepository;
     private final HttpSession httpSession;
@@ -31,19 +31,26 @@ public class CustomOAuth2UserService implements OAuth2UserService {
         OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
-        String registrationId = userRequest.getClientRegistration().getRegistrationId(); // 로그인 서비스 구분 코드 Resource Server ID
+        String registrationId = userRequest.getClientRegistration() // 현재 로그인 진행 중인 서비스 구분 코드
+                .getRegistrationId();
 
-        UserInfoEndpoint userInfoEndpoint = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint();
+        UserInfoEndpoint userInfoEndpoint = userRequest.getClientRegistration()
+                .getProviderDetails()
+                .getUserInfoEndpoint();
 
-        String userNameAttributeName = userInfoEndpoint.getUserNameAttributeName(); // 로그인 진행 시 키가 되는 필드, PK와 같은 의미
+        String userNameAttributeName = userInfoEndpoint.getUserNameAttributeName(); // 로그인 진행 시 키가 되는 필드 값, PK와 같은 의미
 
-        OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
+        OAuthAttributes attributes = OAuthAttributes.of( // OAuth2User 객체의 Attribute를 담을 클래스
+                registrationId,
+                userNameAttributeName,
+                oAuth2User.getAttributes());
 
-        User user = saveOrUpdate(attributes);
+        User user = saveOrUpdate(attributes); // 데이터베이스에 사용자 정보를 저장하거나, 업데이트
 
-        httpSession.setAttribute("user", new SessionUser(user));
+        //httpSession.setAttribute("user", new SessionUser(user)); // 세션에 사용자 정보를 저장
 
-        return new DefaultOAuth2User(Collections.singleton(new SimpleGrantedAuthority(user.getRole().getKey())),
+        return new DefaultOAuth2User(
+                Collections.singleton(new SimpleGrantedAuthority(user.getRole().getKey())),
                 attributes.getAttributes(),
                 attributes.getNameAttributeKey());
     }
