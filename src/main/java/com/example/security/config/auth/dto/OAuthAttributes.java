@@ -31,7 +31,7 @@ public class OAuthAttributes {
         } else if ("naver".equals(registrationId)) {
             return ofNaver("id", attributes); // userNameAttributeName=response
         } else if ("kakao".equals(registrationId)) {
-            return ofKakao("id", attributes); // userNameAttributeName=id
+            return ofKakao(userNameAttributeName, attributes); // userNameAttributeName=id
         }
 
         throw new IllegalArgumentException("Not supported registrationId(" + registrationId + ")");

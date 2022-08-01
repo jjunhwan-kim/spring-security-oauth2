@@ -38,7 +38,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 .getProviderDetails()
                 .getUserInfoEndpoint();
 
-        String userNameAttributeName = userInfoEndpoint.getUserNameAttributeName(); // 로그인 진행 시 키가 되는 필드 값, PK와 같은 의미
+        // 각 계정마다 유니크한 ID 값을 전달해주는데, ID 값이 전달되는 필드 이름을 userNameAttributeName에 저장함
+        String userNameAttributeName = userInfoEndpoint.getUserNameAttributeName();
 
         OAuthAttributes attributes = OAuthAttributes.of( // OAuth2User 객체의 Attribute를 담을 클래스
                 registrationId,
@@ -46,8 +47,6 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 oAuth2User.getAttributes());
 
         User user = saveOrUpdate(attributes); // 데이터베이스에 사용자 정보를 저장하거나, 업데이트
-
-        //httpSession.setAttribute("user", new SessionUser(user)); // 세션에 사용자 정보를 저장
 
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority(user.getRole().getKey())),
